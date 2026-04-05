@@ -1,0 +1,251 @@
+openapi: 3.0.0
+info:
+  title: E-commerce API
+  version: 1.0.0
+  description: Sample e-commerce API for testing ACV
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /products:
+    get:
+      summary: List all products
+      operationId: listProducts
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: min_price
+          in: query
+          schema:
+            type: number
+            minimum: 0
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+
+    post:
+      summary: Create a new product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '201':
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid input
+
+  /products/{productId}:
+    get:
+      summary: Get product by ID
+      operationId: getProduct
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+  /cart:
+    get:
+      summary: Get cart items
+      operationId: getCart
+      responses:
+        '200':
+          description: Cart items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+
+    post:
+      summary: Add item to cart
+      operationId: addToCart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CartItem'
+      responses:
+        '200':
+          description: Item added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+        '400':
+          description: Invalid input
+
+  /orders:
+    post:
+      summary: Create order
+      operationId: createOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid input
+
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - stock
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        price:
+          type: number
+          minimum: 0
+          maximum: 1000000
+        stock:
+          type: integer
+          minimum: 0
+        category:
+          type: string
+          enum: [electronics, clothing, books, home]
+
+    ProductCreate:
+      type: object
+      required:
+        - name
+        - price
+        - stock
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          maxLength: 1000
+        price:
+          type: number
+          minimum: 0
+          maximum: 1000000
+        stock:
+          type: integer
+          minimum: 0
+        category:
+          type: string
+          enum: [electronics, clothing, books, home]
+
+    CartItem:
+      type: object
+      required:
+        - product_id
+        - quantity
+      properties:
+        product_id:
+          type: integer
+          minimum: 1
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 100
+
+    Cart:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              product_id:
+                type: integer
+              quantity:
+                type: integer
+              price:
+                type: number
+        total:
+          type: number
+          minimum: 0
+
+    OrderCreate:
+      type: object
+      required:
+        - shipping_address
+      properties:
+        shipping_address:
+          type: string
+          minLength: 10
+          maxLength: 500
+        notes:
+          type: string
+          maxLength: 500
+
+    Order:
+      type: object
+      required:
+        - id
+        - items
+        - total
+        - status
+      properties:
+        id:
+          type: integer
+        items:
+          type: array
+          items:
+            type: object
+        total:
+          type: number
+        status:
+          type: string
+          enum: [pending, processing, shipped, delivered]
+        shipping_address:
+          type: string
