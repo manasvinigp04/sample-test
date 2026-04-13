@@ -1,64 +1,51 @@
-# ACV Configuration for Sample E-commerce API
-
 project:
-  root: "."
-
+  root: .
   spec:
-    path: "api/openapi.yaml"
-    format: "openapi"
-
+    path: api/openapi.yaml
+    format: openapi
   endpoints:
-    directory: "src/api"
+    directory: src
     patterns:
-      - "**/*.py"
-
+    - '**/*.py'
+    - '**/*.js'
+    - '**/*.ts'
+  tests:
+    directory: tests
+    patterns:
+    - test_*.py
+    - '*_test.py'
+    - '**/*.test.js'
   output:
-    tests: "tests/generated"
-    reports: "reports/acv"
-
+    tests: tests/generated
+    reports: reports/acv
 api:
-  base_url: "http://localhost:8000"
-
+  base_url: http://localhost:8000
   environments:
-    local: "http://localhost:8000"
-    dev: "https://dev-api.example.com"
-    staging: "https://staging-api.example.com"
-    prod: "https://api.example.com"
-
+    local: http://localhost:8000
+    dev: https://dev-api.example.com
+    staging: https://staging-api.example.com
+    prod: https://api.example.com
 execution:
   parallel_workers: 10
   timeout_seconds: 30
   retry_attempts: 3
-
 test_generation:
   generate_valid: true
   generate_invalid: true
   generate_boundary: true
   max_tests_per_endpoint: 50
   enable_prioritization: true
-
-  # Don't test health endpoint
-  exclude_endpoints:
-    - "/health"
-
 drift_detection:
   detect_contract_drift: true
   detect_validation_drift: true
   detect_behavioral_drift: true
-  fail_on_critical: true
-  fail_on_high: false
-
 ai_analysis:
-  enabled: false  # Set to true and export ANTHROPIC_API_KEY for AI analysis
-  model: "claude-3-5-sonnet-20241022"
-
+  enabled: true
+  model: claude-3-5-sonnet-20241022
 reporting:
   formats:
-    - markdown
-    - json
-  include_test_details: true
-  include_recommendations: true
-
+  - markdown
+  - json
 logging:
-  level: "INFO"
-  format: "detailed"
+  level: INFO
+  format: detailed
